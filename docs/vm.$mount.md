@@ -7,6 +7,46 @@ Vue.prototype.$mount 在 ```src\platforms\web\runtime\index.js``` 处挂载
 	  return mountComponent(this, el, hydrating)
 	}
 
+在```src\platforms\web\entry-runtime-with-compiler.js``` 处覆盖
+
+	// 缓存 mount
+	const mount = Vue.prototype.$mount
+	Vue.prototype.$mount = function (el, hydrating) {
+	  el = el && query(el)
+	
+	  // 纠错
+	  if (el === document.body || el === document.documentElement) {
+	    process.env.NODE_ENV !== 'production' && warn(
+	      `Do not mount Vue to <html> or <body> - mount to normal elements instead.`
+	    )
+	    return this
+	  }
+	
+	  const options = this.$options
+	  if (!options.render) {
+	    let template = options.template
+	    if (template) {
+	      // template
+	      // ...
+	    } else if (el) {
+	      template = getOuterHTML(el)
+	    }
+	    
+	    if (template) {
+	      const { render, staticRenderFns } = compileToFunctions(template, {
+	        shouldDecodeNewlines,
+	        delimiters: options.delimiters,
+	        comments: options.comments
+	      }, this)
+	      options.render = render
+	      options.staticRenderFns = staticRenderFns
+	    }
+	  }
+	  return mount.call(this, el, hydrating)
+	}
+
+今天跑偏了, 后边都是错误的方向
+
 选择el 然后返回 mountComponent() ->
  ```src\core\instance\lifecycle.js```
 
