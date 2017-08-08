@@ -20,3 +20,21 @@ export const isServerRendering = () => {
 }
 
 export const hasProto = '__proto__' in {}
+
+export class ISet {
+  constructor() {
+    this.set = Object.create(null)
+  }
+
+  has(key) {
+    return this.set[key] === true
+  }
+
+  add(key) {
+    this.set[key] = true
+  }
+
+  clear() {
+    this.set = Object.create(null)
+  }
+}

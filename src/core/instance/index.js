@@ -25,7 +25,7 @@ stateMixin(Vue)
 eventsMixin(Vue)
 
 // 更新节点的方法
-// 挂载 _updata $forceUpdate $destroy
+// 挂载 _update $forceUpdate $destroy
 lifecycleMixin(Vue)
 
 // 渲染方法

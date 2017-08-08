@@ -1,8 +1,8 @@
 /**
  * Created by Administrator on 2017/8/6 0006.
  */
-import { observe } from '../observer/index'
-import { isPlainObject, warn } from '../util/index'
+import {observe} from '../observer/index'
+import {isPlainObject, warn} from '../util/index'
 
 export function stateMixin(Vue) {
   const dataDef = {
@@ -54,7 +54,7 @@ export function initState(vm) {
 
 function initData(vm) {
   let data = vm.$options.data
-  //处理data -> 对象/函数/未传入
+  // 处理data -> 对象/函数/未传入
   data = vm._data = typeof data === 'function' ? getData(data, vm) : data || {}
   if (!isPlainObject(data)) {
     data = {}

@@ -4,6 +4,7 @@
 import {createElement} from '../vdom/create-element'
 import {defineReactive, emptyObject, warn} from '../util/index'
 import {isUpdatingChildComponent} from './lifecycle'
+import VNode, {createEmptyVNode} from '../vdom/vnode'
 
 function log() {
   console.log('优化渲染方法')
@@ -13,8 +14,36 @@ export function renderMixin(Vue) {
   Vue.prototype.$nextTick = function () {
     console.log('$nextTick')
   }
+
+  /*
+  *   _render返回一个VNode节点
+  * */
   Vue.prototype._render = function () {
-    console.log('_render')
+    const vm = this
+    /* eslint-disable no-unused-vars */
+    const {render, staticRenderFns, _parentVnode} = vm.$options
+
+    // 空对象
+    vm.$scopedSlots = emptyObject
+    // undefined
+    vm.$vnode = _parentVnode
+
+    // create vnode
+    let vnode
+    try {
+      vnode = render.call(vm._renderProxy, vm.$createElement)
+    } catch (e) {
+      warn('vnode render err' + e)
+      vnode = vm._vnode
+    }
+
+    // 如果出错返回VNode空节点
+    if (!(vnode instanceof VNode)) {
+      warn('vnode render err return blank')
+      vnode = createEmptyVNode()
+    }
+    vnode.parent = _parentVnode
+    return vnode
   }
 
   Vue.prototype._o = log

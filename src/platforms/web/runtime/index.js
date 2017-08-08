@@ -7,6 +7,10 @@
 import Vue from 'core/index'
 import platformDirectives from './directives/index'
 import platformComponents from './components/index'
+import {inBrowser} from 'core/util/index'
+import {mountComponent} from 'core/instance/lifecycle'
+import {query} from 'web/util/index'
+import { patch } from './patch'
 
 // 一些验证方法
 Vue.config.mustUseProp = () => console.log('mustUseProp')
@@ -22,10 +26,20 @@ Object.assign(Vue.options.directives, platformDirectives)
 Object.assign(Vue.options.components, platformComponents)
 
 // 安装平台补丁
-// 不知道干什么的 猜测跟ssr有关
-Vue.prototype.__patch__ = () => (console.log('__patch__'))
+// ...
+
+// 渲染节点
+Vue.prototype.__patch__ = patch
 // 渲染视图
-Vue.prototype.$mount = () => (console.log('$mount'))
+Vue.prototype.$mount = function (el, hydrating) {
+  el = el && inBrowser ? query(el) : undefined
+
+  /*
+   *   挂载 $el
+   *   callHook beforeMount
+   * */
+  return mountComponent(this, el, hydrating)
+}
 
 setTimeout(() => {
   // 派发一个'init' 事件

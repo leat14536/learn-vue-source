@@ -39,3 +39,15 @@ export function isValidArrayIndex(val) {
   const n = parseFloat(val)
   return n >= 0 && Math.floor(n) === n && isFinite(val)
 }
+
+export function isDef(v) {
+  return v !== undefined && v !== null
+}
+
+export function isUndef (v) {
+  return v === undefined || v === null
+}
+
+export function isTrue (v) {
+  return v === true
+}

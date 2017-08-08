@@ -12,7 +12,6 @@ import {
   isValidArrayIndex
 } from '../util/index'
 import {arrayMethods} from './array'
-import {observer} from '../observer/index'
 
 const arrayKeys = Object.getOwnPropertyNames(arrayMethods)
 
@@ -37,7 +36,7 @@ export function defineReactive(obj, key, val, customSetter, shallow) {
     enumerable: true,
     configurable: true,
     get: function reactiveGetter() {
-      const value = getter && getter.call(obj)
+      const value = getter ? getter.call(obj) : val
 
       // computed 收集依赖
       if (Dep.target) {
@@ -66,7 +65,7 @@ export function defineReactive(obj, key, val, customSetter, shallow) {
       } else {
         val = newVal
       }
-      childOb = !shallow && observer(newVal)
+      childOb = !shallow && observe(newVal)
       dep.notify()
     }
   })
@@ -88,11 +87,6 @@ export function observe(value, asRootData) {
     Object.isExtensible(value) &&
     !value._isVue
   ) {
-    // 默认true
-    // 非服务端渲染
-    // 是Array 或 Object
-    // 是否可以在它上面添加新的属性
-    // 不是vue
     ob = new Observer(value)
   }
   if (asRootData && ob) {

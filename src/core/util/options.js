@@ -39,6 +39,7 @@ strats.data = function (parentVal, childVal, vm) {
     }
     return mergeDataOrFn.call(this, parentVal, childVal)
   }
+  return mergeDataOrFn(parentVal, childVal, vm)
 }
 
 // 默认方法

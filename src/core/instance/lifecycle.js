@@ -1,12 +1,50 @@
 /**
  * Created by Administrator on 2017/8/6 0006.
  */
+import {noop} from '../util/index'
+import Watcher from '../observer/watcher'
+import {createEmptyVNode} from '../vdom/vnode'
 
+export let activeInstance = null
 export let isUpdatingChildComponent = false
 
 export function lifecycleMixin(Vue) {
   Vue.prototype._update = function (vnode, hydrating) {
     console.log('update')
+    const vm = this
+
+    // 选择出的dom节点
+    const prevEl = vm.$el
+
+    // null
+    const prevVnode = vm._vnode
+    const prevActiveInstance = activeInstance
+
+    activeInstance = vm
+    // 空的 VNode 实例
+    vm._vnode = vnode
+
+    if (!prevVnode) {
+      // initial render
+      vm.$el = vm.__patch__(
+        vm.$el, vnode, hydrating, false /* removeOnly */,
+        vm.$options._parentElm,
+        vm.$options._refElm
+      )
+
+      vm.$options._parentElm = vm.$options._refElm = null
+    } else {
+      console.log('update render')
+    }
+    activeInstance = prevActiveInstance
+    if (prevEl) {
+      prevEl.__vue__ = null
+    }
+    if (vm.$el) {
+      vm.$el.__vue__ = vm
+    }
+    // 如果父节点是临时的 更新父节点
+    // ...
   }
 
   // 强制更新
@@ -44,4 +82,31 @@ export function initLifecycle(vm) {
 
 export function callHook(vm, hook) {
   console.log(hook)
+}
+
+export function mountComponent(vm, el, hydrating) {
+  vm.$el = el
+
+  // 挂载 $options.render 为一个创造VNode的函数
+  if (!vm.$options.render) {
+    vm.$options.render = createEmptyVNode
+  }
+
+  callHook(vm, 'beforeMount')
+
+  let updateComponent = () => {
+    vm._update(vm._render(), hydrating)
+  }
+
+  /*
+   *  watcher 内部会调用一次 updateComponent
+   * */
+  vm._watcher = new Watcher(vm, updateComponent, noop)
+  hydrating = false
+
+  if (vm.$vnode == null) {
+    vm._isMounted = true
+    callHook(vm, 'mounted')
+  }
+  return vm
 }

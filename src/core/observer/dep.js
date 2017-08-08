@@ -9,6 +9,7 @@ export default class Dep {
     this.id = uid++
     this.subs = []
   }
+
   addSub (sub) {
     this.subs.push(sub)
   }
@@ -34,3 +35,13 @@ export default class Dep {
 
 // computed 收集依赖相关
 Dep.target = null
+const targetStack = []
+
+export function pushTarget (_target) {
+  if (Dep.target) targetStack.push(Dep.target)
+  Dep.target = _target
+}
+
+export function popTarget () {
+  Dep.target = targetStack.pop()
+}
