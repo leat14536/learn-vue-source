@@ -71,4 +71,15 @@ export default class Wacher {
     this.newDeps = tmp
     this.newDeps.length = 0
   }
+
+  addDep(dep) {
+    const id = dep.id
+    if (!this.newDepIds.has(id)) {
+      this.newDepIds.add(id)
+      this.newDeps.push(dep)
+      if (!this.depIds.has(id)) {
+        dep.addSub(this)
+      }
+    }
+  }
 }

@@ -3,7 +3,6 @@
  */
 import {noop} from '../util/index'
 import Watcher from '../observer/watcher'
-import {createEmptyVNode} from '../vdom/vnode'
 
 export let activeInstance = null
 export let isUpdatingChildComponent = false
@@ -21,11 +20,10 @@ export function lifecycleMixin(Vue) {
     const prevActiveInstance = activeInstance
 
     activeInstance = vm
-    // 空的 VNode 实例
     vm._vnode = vnode
 
     if (!prevVnode) {
-      // initial render
+      // 渲染
       vm.$el = vm.__patch__(
         vm.$el, vnode, hydrating, false /* removeOnly */,
         vm.$options._parentElm,
@@ -87,14 +85,13 @@ export function callHook(vm, hook) {
 export function mountComponent(vm, el, hydrating) {
   vm.$el = el
 
-  // 挂载 $options.render 为一个创造VNode的函数
   if (!vm.$options.render) {
-    vm.$options.render = createEmptyVNode
+    // ...
   }
-
   callHook(vm, 'beforeMount')
 
   let updateComponent = () => {
+    // vm._render 返回vm的vnode
     vm._update(vm._render(), hydrating)
   }
 

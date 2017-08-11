@@ -2,9 +2,16 @@
  * Created by Administrator on 2017/8/6 0006.
  */
 import {createElement} from '../vdom/create-element'
-import {defineReactive, emptyObject, warn} from '../util/index'
+import {
+  defineReactive,
+  emptyObject,
+  warn,
+  toString} from '../util/index'
 import {isUpdatingChildComponent} from './lifecycle'
-import VNode, {createEmptyVNode} from '../vdom/vnode'
+import VNode, {
+  createEmptyVNode,
+  createTextVNode
+} from '../vdom/vnode'
 
 function log() {
   console.log('优化渲染方法')
@@ -48,7 +55,7 @@ export function renderMixin(Vue) {
 
   Vue.prototype._o = log
   Vue.prototype._n = log
-  Vue.prototype._s = log
+  Vue.prototype._s = toString
   Vue.prototype._l = log
   Vue.prototype._t = log
   Vue.prototype._q = log
@@ -57,7 +64,7 @@ export function renderMixin(Vue) {
   Vue.prototype._f = log
   Vue.prototype._k = log
   Vue.prototype._b = log
-  Vue.prototype._v = log
+  Vue.prototype._v = createTextVNode
   Vue.prototype._e = log
   Vue.prototype._u = log
   Vue.prototype._g = log
@@ -79,7 +86,7 @@ export function initRender(vm) {
    一、createElement(): 用 JavaScript对象(虚拟树) 描述 真实DOM对象(真实树)
    二、diff(oldNode, newNode) : 对比新旧两个虚拟树的区别，收集差异
    三、patch() : 将差异应用到真实DOM树
-   * */
+   */
   // bind the createElement fn to this instance
   // args order: tag, data, children, normalizationType, alwaysNormalize
   // 绑定this

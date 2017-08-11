@@ -2,7 +2,30 @@
  * Created by Administrator on 2017/8/6 0006.
  */
 import {observe} from '../observer/index'
-import {isPlainObject, warn} from '../util/index'
+import {
+  isPlainObject,
+  warn,
+  hasOwn,
+  isReserved,
+  noop
+} from '../util/index'
+
+const sharedPropertyDefinition = {
+  enumerable: true,
+  configurable: true,
+  get: noop,
+  set: noop
+}
+
+export function proxy(target, sourceKey, key) {
+  sharedPropertyDefinition.get = function proxyGetter () {
+    return this[sourceKey][key]
+  }
+  sharedPropertyDefinition.set = function proxySetter (val) {
+    this[sourceKey][key] = val
+  }
+  Object.defineProperty(target, key, sharedPropertyDefinition)
+}
 
 export function stateMixin(Vue) {
   const dataDef = {
@@ -66,14 +89,21 @@ function initData(vm) {
   }
 
   const keys = Object.keys(data)
+  const props = vm.$options.props || {}
   // const props = vm.$options.props
   // const methods = vm.$options.methods
   let i = keys.length
+
   while (i--) {
+    const key = keys[i]
     // 判断 method 和 data 是否有相同key
     // ...
-    // 判断 prop 和 data 是否有相同key
-    // ...
+    if (props && hasOwn(props, key)) {
+      // ...
+    } else if (!isReserved(key)) {
+      // 将data 绑在vm上
+      proxy(vm, `_data`, key)
+    }
   }
   observe(data, true /* asRootData */)
 }

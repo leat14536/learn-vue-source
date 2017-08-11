@@ -3,8 +3,12 @@
  */
 
 import Vue from './runtime/index'
-import { warn, cached } from 'core/util/index'
+import {warn} from 'core/util/index'
+import {query} from './util/index'
 import { compileToFunctions } from './compiler/index'
+
+// 检测浏览器是否自动转码('\n' -> &#10;) type: Boolean chrome下为false
+import { shouldDecodeNewlines } from './util/compat'
 
 // 缓存 mount
 const mount = Vue.prototype.$mount
@@ -28,9 +32,13 @@ Vue.prototype.$mount = function (el, hydrating) {
     } else if (el) {
       template = getOuterHTML(el)
     }
-
     if (template) {
-      const { render, staticRenderFns } = compileToFunctions(template, {
+      // 这里非常复杂
+      // 将节点通过parse转换为对象形式表达
+      // 判断节点是否为静态, 如果节点的children为动态, 那么节点也是动态
+      // 获取遍历节点的属性通过拼接字符串new Function转换为render函数
+      // 静态节点使用staticRenderFns
+      const {render, staticRenderFns} = compileToFunctions(template, {
         shouldDecodeNewlines,
         delimiters: options.delimiters,
         comments: options.comments
@@ -43,3 +51,12 @@ Vue.prototype.$mount = function (el, hydrating) {
 }
 
 export default Vue
+
+function getOuterHTML(el) {
+  // 不判断特殊情况
+  if (el.outerHTML) {
+    return el.outerHTML
+  } else {
+    warn('getOutHTML warn')
+  }
+}

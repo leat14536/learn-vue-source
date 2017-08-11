@@ -1,8 +1,11 @@
 /**
  * Created by Administrator on 2017/8/8 0008.
  */
-export function createElement() {
-  console.log('createElement')
+export function createElement(tagName, vnode) {
+  const elm = document.createElement(tagName)
+  if (tagName !== 'select') {
+    return elm
+  }
 }
 
 export function createElementNS() {
@@ -21,12 +24,12 @@ export function insertBefore(parentNode, newNode, referenceNode) {
   parentNode.insertBefore(newNode, referenceNode)
 }
 
-export function removeChild() {
-  console.log('removeChild')
+export function removeChild(node, child) {
+  node.removeChild(child)
 }
 
-export function appendChild() {
-  console.log('appendChild')
+export function appendChild(node, child) {
+  node.appendChild(child)
 }
 
 export function parentNode(node) {

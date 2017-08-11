@@ -9,21 +9,26 @@ import platformDirectives from './directives/index'
 import platformComponents from './components/index'
 import {inBrowser} from 'core/util/index'
 import {mountComponent} from 'core/instance/lifecycle'
-import {query} from 'web/util/index'
-import { patch } from './patch'
+import {patch} from './patch'
+import {extend} from 'shared/util'
+import {
+  query,
+  getTagNamespace,
+  isReservedTag
+} from 'web/util/index'
 
 // 一些验证方法
 Vue.config.mustUseProp = () => console.log('mustUseProp')
-Vue.config.isReservedTag = () => console.log('isReservedTag')
+Vue.config.isReservedTag = () => isReservedTag
 Vue.config.isReservedAttr = () => console.log('isReservedAttr')
-Vue.config.getTagNamespace = () => console.log('getTagNamespace')
+Vue.config.getTagNamespace = () => getTagNamespace
 Vue.config.isUnknownElement = () => console.log('isUnknownElement')
 
 // model show指令
-Object.assign(Vue.options.directives, platformDirectives)
+extend(Vue.options.directives, platformDirectives)
 
 // Transition TransitionGroup
-Object.assign(Vue.options.components, platformComponents)
+extend(Vue.options.components, platformComponents)
 
 // 安装平台补丁
 // ...
@@ -33,11 +38,6 @@ Vue.prototype.__patch__ = patch
 // 渲染视图
 Vue.prototype.$mount = function (el, hydrating) {
   el = el && inBrowser ? query(el) : undefined
-
-  /*
-   *   挂载 $el
-   *   callHook beforeMount
-   * */
   return mountComponent(this, el, hydrating)
 }
 

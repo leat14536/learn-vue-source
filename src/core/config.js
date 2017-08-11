@@ -1,6 +1,10 @@
 /**
  * Created by Administrator on 2017/8/6 0006.
  */
+import {
+  noop,
+  no
+} from 'shared/util'
 export default ({
   optionMergeStrategies: Object.create(null),
   silent: false,
@@ -10,12 +14,12 @@ export default ({
   errorHandler: null,
   warnHandler: null,
   ignoredElements: [],
-  keyCodes: Object.create(null)
-  // isReservedTag: no,
-  // isReservedAttr: no,
-  // isUnknownElement: no,
-  // getTagNamespace: noop,
+  keyCodes: Object.create(null),
+  isReservedTag: no,
+  isReservedAttr: no,
+  isUnknownElement: no,
+  getTagNamespace: noop,
   // parsePlatformTagName: identity,
-  // mustUseProp: no,
+  mustUseProp: no
   // _lifecycleHooks: LIFECYCLE_HOOKS
 })

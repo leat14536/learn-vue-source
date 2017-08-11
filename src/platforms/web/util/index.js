@@ -3,6 +3,19 @@
  */
 import { warn } from 'core/util/index'
 
+/*
+*   getTagNamespace
+*   isReservedTag
+* */
+export * from './element'
+
+/*
+*  isBooleanAttr
+*  isEnumeratedAttr
+*  isXlink
+* */
+export * from './attrs'
+
 export function query(el) {
   if (typeof el === 'string') {
     const selected = document.querySelector(el)

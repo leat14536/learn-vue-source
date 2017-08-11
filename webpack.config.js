@@ -18,7 +18,8 @@ module.exports = () => {
       alias: {
         core: resolve('./src/core'),
         shared: resolve('./src/shared'),
-        web: resolve('./src/platforms/web')
+        web: resolve('./src/platforms/web'),
+        compiler: resolve('./src/compiler')
       }
     },
     module: {

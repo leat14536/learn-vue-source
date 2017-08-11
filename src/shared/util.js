@@ -44,10 +44,47 @@ export function isDef(v) {
   return v !== undefined && v !== null
 }
 
-export function isUndef (v) {
+export function isUndef(v) {
   return v === undefined || v === null
 }
 
-export function isTrue (v) {
+export function isTrue(v) {
   return v === true
+}
+
+export const no = (a, b, c) => false
+
+export function makeMap(str, expectsLowerCase) {
+  const map = Object.create(null)
+  const list = str.split(',')
+  for (let i = 0; i < list.length; i++) {
+    map[list[i]] = true
+  }
+  return expectsLowerCase
+    ? val => map[val.toLowerCase()]
+    : val => map[val]
+}
+
+export function cached(fn) {
+  const cache = Object.create(null)
+  return function cachedFn (str) {
+    const hit = cache[str]
+    return hit || (cache[str] = fn(str))
+  }
+}
+
+export function extend(to, from) {
+  return Object.assign(to, from)
+}
+
+export function toString(val) {
+  return val == null ? '' : typeof val === 'object' ? JSON.stringify(val, null, 2) : String(val)
+}
+
+export function isPrimitive (value) {
+  return (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  )
 }
