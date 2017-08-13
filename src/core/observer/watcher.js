@@ -1,5 +1,10 @@
 import {pushTarget, popTarget} from './dep'
-import {warn, ISet as Set} from '../util/index'
+import {queueWatcher} from './scheduler'
+import {
+  warn,
+  ISet as Set,
+  parsePath
+} from '../util/index'
 
 let uid = 0
 
@@ -22,13 +27,16 @@ export default class Wacher {
     this.newDeps = []
     this.depIds = new Set()
     this.newDepIds = new Set()
-    this.expression = ''
+    this.expression = expOrFn.toString()
     if (typeof expOrFn === 'function') {
       this.getter = expOrFn
     } else {
-      this.getter = function () {
+      this.getter = parsePath(expOrFn)
+      if (!this.getter) {
+        this.getter = function () {
+        }
+        warn('watcher warn')
       }
-      warn('watcher warn')
     }
     this.value = this.lazy ? undefined : this.get()
   }
@@ -45,9 +53,9 @@ export default class Wacher {
       // "touch" every property so they are all tracked as
       // dependencies for deep watching
       // 暂时不关心 watcher 冒泡
-      /* if (this.deep) {
-       traverse(value)
-       } */
+      if (this.deep) {
+        // ... 冒泡相关
+      }
       popTarget()
       this.cleanupDeps()
     }
@@ -79,6 +87,25 @@ export default class Wacher {
       this.newDeps.push(dep)
       if (!this.depIds.has(id)) {
         dep.addSub(this)
+      }
+    }
+  }
+
+  update() {
+    if (this.lazy) {
+      // ...
+    } else if (this.sync) {
+      // ...
+    } else {
+      queueWatcher(this)
+    }
+  }
+
+  run () {
+    if(this.active) {
+      const value = this.get()
+      if(value !== this.value || isObject(value) || this.deep) {
+        // ...
       }
     }
   }

@@ -46,3 +46,55 @@ export class ISet {
     this.set = Object.create(null)
   }
 }
+
+export const nextTick = (function () {
+  const callbacks = []
+  let pending = false
+  let timerFunc
+
+  function nextTickHandler() {
+    pending = false
+    const copies = callbacks.slice(0)
+    for (let i = 0; i < copies.length; i++) {
+      copies[i]()
+    }
+  }
+
+  if (typeof Promise !== 'undefined') {
+    let p = Promise.resolve()
+    let logErr = err => {
+      console.error(err)
+    }
+    timerFunc = () => {
+      p.then(nextTickHandler).catch(logErr)
+      // ... if(isIos)
+    }
+  }
+  // ... else
+
+  return function queueNextTick(cb, ctx) {
+    let _resolve
+    callbacks.push(() => {
+      if (cb) {
+        try {
+          cb.call(ctx)
+        } catch (e) {
+          console.warn(e)
+        }
+      } else if (_resolve) {
+        // ...
+      }
+    })
+
+    if (!pending) {
+      pending = true
+      timerFunc()
+    }
+
+    if (!cb && typeof Promise !== 'undefined') {
+      // ...
+    }
+  }
+})()
+
+export const devtools = inBrowser && window.__VUE_DEVTOOLS_GLOBAL_HOOK__

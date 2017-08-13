@@ -11,4 +11,13 @@ let app = new Vue({
   }
 })
 
+app.$watch('a', () => {
+  alert(9)
+})
+
+app.$watch('a', () => {
+  alert(90)
+})
+
+app.a = 5
 console.log(app)

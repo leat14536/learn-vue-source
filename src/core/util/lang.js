@@ -13,7 +13,23 @@ export function def(obj, key, val, enumerable) {
   })
 }
 
-export function isReserved (str) {
+export function isReserved(str) {
   const c = (str + '').charCodeAt(0)
   return c === 0x24 || c === 0x5F
+}
+
+const bailRE = /[^\w.$]/
+export function parsePath(path) {
+  // 空字符串
+  if (bailRE.test(path)) {
+    return
+  }
+  const segments = path.split('.')
+  return function (obj) {
+    for (let i = 0; i < segments.length; i++) {
+      if (!obj) return
+      obj = obj[segments[i]]
+    }
+    return obj
+  }
 }

@@ -2,6 +2,7 @@
  * Created by Administrator on 2017/8/6 0006.
  */
 import {observe} from '../observer/index'
+import Watcher from '../observer/watcher'
 import {
   isPlainObject,
   warn,
@@ -54,8 +55,23 @@ export function stateMixin(Vue) {
   Vue.prototype.$delete = function () {
     console.log('set')
   }
-  Vue.prototype.$watch = function (expOrFn, cb, oprions) {
-    console.log('watch')
+  Vue.prototype.$watch = function (expOrFn, cb, options) {
+    const vm = this
+    if (isPlainObject(cb)) {
+      // ...
+    }
+    options = options || {}
+    options.user = true
+    const watcher = new Watcher(vm, expOrFn, cb, options)
+
+    if (options.immediate) {
+      // ... 立即执行cb
+    }
+
+    // 返回取消观察函数
+    return function unwatchFn() {
+      watcher.teardown()
+    }
   }
 }
 

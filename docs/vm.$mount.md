@@ -1,4 +1,4 @@
-# 通过$mount的源码来看Vue的VNode
+# 通过$mount的源码来看Vue的渲染流程
 
 Vue.prototype.$mount 在 ```src\platforms\web\runtime\index.js``` 处第一次挂载
 
@@ -13,7 +13,7 @@ Vue.prototype.$mount 在 ```src\platforms\web\runtime\index.js``` 处第一次�
 	const mount = Vue.prototype.$mount
 	Vue.prototype.$mount = function (el, hydrating) {
 	  el = el && query(el)
-	
+
 	  // 纠错
 	  if (el === document.body || el === document.documentElement) {
 	    process.env.NODE_ENV !== 'production' && warn(
@@ -21,7 +21,7 @@ Vue.prototype.$mount 在 ```src\platforms\web\runtime\index.js``` 处第一次�
 	    )
 	    return this
 	  }
-	
+
 	  const options = this.$options
 	  if (!options.render) {
 	    let template = options.template
@@ -63,23 +63,23 @@ Vue.prototype.$mount 在 ```src\platforms\web\runtime\index.js``` 处第一次�
 
 	export function mountComponent(vm, el, hydrating) {
 	  vm.$el = el
-	
+
 	  if (!vm.$options.render) {
 	    // ...
 	  }
-	
+
 	  callHook(vm, 'beforeMount')
-	
+
 	  let updateComponent = () => {
 	    vm._update(vm._render(), hydrating)
 	  }
-	
+
 	  /*
 	   *  watcher 内部会调用一次 updateComponent
 	   * */
 	  vm._watcher = new Watcher(vm, updateComponent, noop)
 	  hydrating = false
-	
+
 	  if (vm.$vnode == null) {
 	    vm._isMounted = true
 	    callHook(vm, 'mounted')
@@ -94,18 +94,18 @@ _update() -> lifecycleMixin() 挂载 -> ```src\core\instance\lifecycle.js```
 	Vue.prototype._update = function (vnode, hydrating) {
 	    console.log('update')
 	    const vm = this
-	
+
 	    // 选择出的dom节点
 	    const prevEl = vm.$el
-	
+
 	    // null
 	    const prevVnode = vm._vnode
 	    const prevActiveInstance = activeInstance
-	
+
 	    activeInstance = vm
 	    // 空的 VNode 实例
 	    vm._vnode = vnode
-	
+
 	    if (!prevVnode) {
 	      // initial render
 	      vm.$el = vm.__patch__(
@@ -113,7 +113,7 @@ _update() -> lifecycleMixin() 挂载 -> ```src\core\instance\lifecycle.js```
 	        vm.$options._parentElm,
 	        vm.$options._refElm
 	      )
-	
+
 	      vm.$options._parentElm = vm.$options._refElm = null
 	    } else{
 	      console.log('update render')
@@ -145,16 +145,16 @@ _update() -> lifecycleMixin() 挂载 -> ```src\core\instance\lifecycle.js```
 	import baseModules from 'core/vdom/modules/index'
 	import platformModules from 'web/runtime/modules/index'
 	import { createPatchFunction } from 'core/vdom/patch'
-	
+
 	const modules = platformModules.concat(baseModules)
-	
+
 	export const patch = createPatchFunction({nodeOps, modules})
 
 一个一个来分析:
 
 1. baseModules -> [ref, directive] 的create + update + destroy 方法
 2. platformModules [attrs,klass,events,domProps,style,transition] 的create + update 方法 transition 多一个 remove 方法
-3. modules = [...baseModules, ...platformModules] 
+3. modules = [...baseModules, ...platformModules]
 4. nodeOps dom节点的操作方法
 5. createPatchFunction -> ```src/core/vdom/patch```
 
@@ -165,7 +165,7 @@ _update() -> lifecycleMixin() 挂载 -> ```src\core\instance\lifecycle.js```
 	  let i, j
 	  const cbs = {}
 	  const {modules, nodeOps} = backend
-	
+
 	  // 按hook归类
 	  for (i = 0; i < hooks.length; i++) {
 	    cbs[hooks[i]] = []
@@ -175,7 +175,7 @@ _update() -> lifecycleMixin() 挂载 -> ```src\core\instance\lifecycle.js```
 	      }
 	    }
 	  }
-	
+
 	// ... 函数内部方法
 
 	return function patch(oldVnode, vnode, hydrating, removeOnly, parentElm, refElm) {
@@ -187,7 +187,7 @@ _update() -> lifecycleMixin() 挂载 -> ```src\core\instance\lifecycle.js```
 	    }
 	    let isInitialPatch = false
 	    const insertedVnodeQueue = []
-	
+
 	    if (isUndef(oldVnode)) {
 	      // oldNode 不存在
 	    } else {
@@ -198,16 +198,16 @@ _update() -> lifecycleMixin() 挂载 -> ```src\core\instance\lifecycle.js```
 	          // 服务端渲染相关
 	          // ...
 	        }
-	
+
 	        if (isTrue(hydrating)) {
 	          // ...
 	        }
-	
+
 			// oldnode转换为一个表示空div的vnode
 	        // initial return -> VNode tag: div, elm: div#app
 	        oldVnode = emptyNodeAt(oldVnode)
 	      }
-	
+
 	      const oldElm = oldVnode.elm
 	      // ubdefined
 	      const parentElm = nodeOps.parentNode(oldElm)
@@ -216,11 +216,11 @@ _update() -> lifecycleMixin() 挂载 -> ```src\core\instance\lifecycle.js```
 	        insertedVnodeQueue,
 	        oldElm._leaveCb ? null : parentElm,
 	        nodeOps.nextSibling(oldElm))
-	
+
 	      if (isDef(vnode.parent)) {
 	        // ...
 	      }
-	
+
 		  // 移除原始节点
 	      if (isDef(parentElm)) {
 	        removeVnodes(parentElm, [oldVnode], 0, 0)
