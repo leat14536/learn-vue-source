@@ -33,6 +33,7 @@ function flushSchedulerQueue() {
     watcher.run()
   }
 
+  /* eslint-disable no-unused-vars */
   const activatedQueue = activatedChildren.slice()
   const updatedQueue = queue.slice()
 

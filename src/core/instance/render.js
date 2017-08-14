@@ -27,6 +27,8 @@ export function renderMixin(Vue) {
   * */
   Vue.prototype._render = function () {
     const vm = this
+
+    // render是通过拼接字符串形成的渲染方法
     /* eslint-disable no-unused-vars */
     const {render, staticRenderFns, _parentVnode} = vm.$options
 

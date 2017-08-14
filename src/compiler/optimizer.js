@@ -58,18 +58,19 @@ function markStaticRoots(node, isInFor) {
     if (node.static || node.once) {
       // ...
     }
-  }
-  if (node.static && node.children.length && !(node.children.length === 1 && node.children[0].type === 3)) {
-    // ...
-  }
-
-  if (node.children) {
-    for (let i = 0, l = node.children.length; i < l; i++) {
-      markStaticRoots(node.children[i], isInFor || !!node.for)
+    if (node.static && node.children.length && !(node.children.length === 1 && node.children[0].type === 3)) {
+      // ...
     }
-  }
-  if (node.ifConditions) {
-    // ...
+
+    if (node.children) {
+      for (let i = 0, l = node.children.length; i < l; i++) {
+        debugger
+        markStaticRoots(node.children[i], isInFor || !!node.for)
+      }
+    }
+    if (node.ifConditions) {
+      // ...
+    }
   }
 }
 

@@ -1,6 +1,8 @@
 /**
  * Created by Administrator on 2017/8/8 0008.
  */
+import { namespaceMap } from 'web/util/index'
+
 export function createElement(tagName, vnode) {
   const elm = document.createElement(tagName)
   if (tagName !== 'select') {
@@ -8,8 +10,8 @@ export function createElement(tagName, vnode) {
   }
 }
 
-export function createElementNS() {
-  console.log('createElementNS')
+export function createElementNS(namespace, tagName) {
+  return document.createElementNS(namespaceMap[namespace], tagName)
 }
 
 export function createTextNode(text) {

@@ -67,6 +67,13 @@ export function initMixin(Vue) {
  * */
 export function resolveConstructorOptions(Ctor) {
   let options = Ctor.options
-  // super 不知道干什么的 先不管
+  if (Ctor.super) {
+    const superOptions = resolveConstructorOptions(Ctor.super)
+    const cachedSuperOptions = Ctor.superOptions
+    if (superOptions !== cachedSuperOptions) {
+      console.log('----------------------------')
+      console.log('superoption !== cachedSuperOptions')
+    }
+  }
   return options
 }

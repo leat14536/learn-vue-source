@@ -33,6 +33,7 @@ export function lifecycleMixin(Vue) {
       vm.$options._parentElm = vm.$options._refElm = null
     } else {
       console.log('update render')
+      vm.$el = vm.__patch__(prevVnode, vnode)
     }
     activeInstance = prevActiveInstance
     if (prevEl) {
@@ -96,7 +97,7 @@ export function mountComponent(vm, el, hydrating) {
   }
 
   /*
-   *  watcher 内部会调用一次 updateComponent
+   *  watcher 内部会调用一次 updateComponent 用于收集依赖
    * */
   vm._watcher = new Watcher(vm, updateComponent, noop)
   hydrating = false

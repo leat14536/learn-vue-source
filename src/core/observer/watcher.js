@@ -3,7 +3,8 @@ import {queueWatcher} from './scheduler'
 import {
   warn,
   ISet as Set,
-  parsePath
+  parsePath,
+  isObject
 } from '../util/index'
 
 let uid = 0
@@ -55,6 +56,7 @@ export default class Wacher {
       // 暂时不关心 watcher 冒泡
       if (this.deep) {
         // ... 冒泡相关
+        traverse(value)
       }
       popTarget()
       this.cleanupDeps()
@@ -93,20 +95,62 @@ export default class Wacher {
 
   update() {
     if (this.lazy) {
-      // ...
+      // 不执行
+      this.dirty = true
     } else if (this.sync) {
-      // ...
+      // 立即执行
+      this.run()
     } else {
       queueWatcher(this)
     }
   }
 
-  run () {
-    if(this.active) {
+  run() {
+    if (this.active) {
       const value = this.get()
-      if(value !== this.value || isObject(value) || this.deep) {
-        // ...
+      if (value !== this.value || isObject(value) || this.deep) {
+        const oldValue = this.value
+        this.value = value
+        if (this.user) {
+          try {
+            this.cb.call(this.vm, value, oldValue)
+          } catch (e) {
+            console.warn('watcher.run err')
+          }
+        } else {
+          // 如果是内部方法则不验证对错 直接执行
+          this.cb.call(this.vm, value, oldValue)
+        }
       }
     }
+  }
+}
+
+const seenObjects = new Set()
+function traverse(val) {
+  seenObjects.clear()
+  _traverse(val, seenObjects)
+}
+
+function _traverse(val, seen) {
+  let i, keys
+  const isA = Array.isArray(val)
+
+  // 如果设置deep的值不是obj或者arr则设置无效
+  if ((!isA && !isObject(val)) || !Object.isExtensible(val)) return
+
+  if (val.__ob__) {
+    const depId = val.__ob__.dep.id
+    if (seen.has[depId]) return
+    seen.add(depId)
+  }
+
+  if (isA) {
+    // ... array的处理方法
+  } else {
+    // obj的处理方法
+    keys = Object.keys(val)
+    i = keys.length
+    while (i--) _traverse(val[keys[i]], seen)
   }
 }

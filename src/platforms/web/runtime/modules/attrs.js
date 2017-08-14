@@ -34,7 +34,6 @@ function updateAttrs(oldVnode, vnode) {
     cur = attrs[key]
     old = oldAttrs[key]
     if (old !== cur) {
-      debugger
       setAttr(elm, key, cur)
     }
   }

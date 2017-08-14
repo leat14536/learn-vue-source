@@ -3,12 +3,31 @@
  */
 import VNode from './vnode'
 import {
-  isDef
+  isDef,
+  isTrue,
+  isUndef,
+  isPrimitive
 } from '../util/index'
 import config from '../config'
 
-// Vue, 'div', {attrs:{"id":"app"}}, (子节点vnode){text: 1} undefined false
+/* eslint-disable no-unused-vars */
+const SIMPLE_NORMALIZE = 1
+const ALWAYS_NORMALIZE = 2
+
 export function createElement(context, tag, data, children, normalizationType, alwaysNormalize) {
+  if (Array.isArray(data) || isPrimitive(data)) {
+    normalizationType = children
+    children = data
+    data = undefined
+  }
+  if (isTrue(alwaysNormalize)) {
+    normalizationType = ALWAYS_NORMALIZE
+  }
+  return _createElement(context, tag, data, children, normalizationType)
+}
+
+// Vue, 'div', {attrs:{"id":"app"}}, (子节点vnode){text: 1} undefined false
+function _createElement(context, tag, data, children, normalizationType) {
   if (isDef(data) && isDef(data.is)) {
     // ...
   }
@@ -35,11 +54,25 @@ export function createElement(context, tag, data, children, normalizationType, a
   }
 
   if (isDef(vnode)) {
-    if (ns) {
-      // ...
-    }
+    if (ns) applyNS(vnode, ns)
     return vnode
   } else {
     // ...
+  }
+}
+
+function applyNS(vnode, ns) {
+  vnode.ns = ns
+  if (vnode.tag === 'foreignObject') {
+    return
+  }
+
+  if (isDef(vnode.children)) {
+    for (let i = 0, l = vnode.children.length; i < l; i++) {
+      const child = vnode.children[i]
+      if (isDef(child.tag) && isUndef(child.ns)) {
+        applyNS(child, ns)
+      }
+    }
   }
 }

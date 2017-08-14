@@ -115,7 +115,7 @@ function genChildren(el, state, checkSkip, altGenElement, altGenNode) {
 
 function genNode(node, state) {
   if (node.type === 1) {
-    // ...
+    return genElement(node, state)
   } else if (node.type === 3 && node.isComment) {
     // ...
   } else {
