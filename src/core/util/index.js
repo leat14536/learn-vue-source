@@ -7,6 +7,7 @@ export * from './env.js'
 
 /*
 *   mergeOptions: Function
+*   resolveAsset
 * */
 export * from './options.js'
 

@@ -64,7 +64,6 @@ function markStaticRoots(node, isInFor) {
 
     if (node.children) {
       for (let i = 0, l = node.children.length; i < l; i++) {
-        debugger
         markStaticRoots(node.children[i], isInFor || !!node.for)
       }
     }

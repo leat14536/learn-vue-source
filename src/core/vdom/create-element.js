@@ -6,9 +6,11 @@ import {
   isDef,
   isTrue,
   isUndef,
-  isPrimitive
+  isPrimitive,
+  resolveAsset
 } from '../util/index'
 import config from '../config'
+import {createComponent} from './create-component'
 
 /* eslint-disable no-unused-vars */
 const SIMPLE_NORMALIZE = 1
@@ -40,12 +42,17 @@ function _createElement(context, tag, data, children, normalizationType) {
 
   let vnode, ns
   if (typeof tag === 'string') {
-    // let Ctor
+    let Ctor
     // @return tag === SVG || Math ?
     ns = config.getTagNamespace(tag)
+    debugger
     // true
     if (config.isReservedTag(tag)) {
       vnode = new VNode(tag, data, children, undefined, undefined, context)
+    } else if (isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {
+      // Ctor 为返回的component组件
+      // components
+      vnode = createComponent(Ctor, data, context, children, tag)
     } else {
       // ...
     }

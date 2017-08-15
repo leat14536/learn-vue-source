@@ -64,6 +64,7 @@ export function initMixin(Vue) {
 
 /*
  *   返回Vue的静态options
+ *   组件调用时返回
  * */
 export function resolveConstructorOptions(Ctor) {
   let options = Ctor.options
@@ -71,6 +72,8 @@ export function resolveConstructorOptions(Ctor) {
     const superOptions = resolveConstructorOptions(Ctor.super)
     const cachedSuperOptions = Ctor.superOptions
     if (superOptions !== cachedSuperOptions) {
+      debugger
+      // 组件调整, 暂时不知道干什么的
       console.log('----------------------------')
       console.log('superoption !== cachedSuperOptions')
     }

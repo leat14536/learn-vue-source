@@ -60,7 +60,7 @@ export function genElement(el, state) {
       // "[_v(_s(a))]"
       const children = el.inlineTemplate ? null : genChildren(el, state, true)
       // _c('div',{attrs:{"id":"app"}}[_v(_s(a))]
-      code = `_c('${el.tag}'${data ? `,${data}` : ''},${children ? `${children}` : ''})`
+      code = `_c('${el.tag}'${data ? `,${data}` : ''}${children ? `,${children}` : ''})`
     }
     // ... module transforms
     return code
@@ -147,6 +147,10 @@ function getNormalizationType(children, maybeComponent) {
       continue
     }
     // ...
+    if (maybeComponent(el) ||
+      (el.ifConditions && el.ifConditions.some(c => maybeComponent(c.block)))) {
+      res = 1
+    }
   }
   return res
 }

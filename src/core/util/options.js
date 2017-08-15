@@ -3,8 +3,19 @@
  */
 import config from '../config'
 import {warn} from './debug'
-import {isPlainObject, hasOwn} from 'shared/util'
-import { set } from '../observer/index'
+import {
+  isPlainObject,
+  hasOwn,
+  extend,
+  camelize,
+  capitalize,
+  isBuiltInTag
+} from 'shared/util'
+import {set} from '../observer/index'
+
+import {
+  ASSET_TYPES
+} from 'shared/constants'
 
 // 初始为 {}
 // 合并各种属性的策略
@@ -41,6 +52,15 @@ strats.data = function (parentVal, childVal, vm) {
   }
   return mergeDataOrFn(parentVal, childVal, vm)
 }
+
+function mergeAssets(parentVal, childVal) {
+  const res = Object.create(parentVal || null)
+  return childVal ? extend(res, childVal) : res
+}
+
+ASSET_TYPES.forEach((type) => {
+  strats[type + 's'] = mergeAssets
+})
 
 // 默认方法
 const defaultStrat = function (parentVal, childVal) {
@@ -148,6 +168,12 @@ export function mergeOptions(parent, child, vm) {
 }
 
 function checkComponents(options) {
+  for (const key in options.components) {
+    const lower = key.toLowerCase()
+    if (isBuiltInTag(lower) || config.isReservedTag(lower)) {
+      warn('checkComponents')
+    }
+  }
 }
 
 function normalizeProps(options) {
@@ -157,4 +183,21 @@ function normalizeInject(options) {
 }
 
 function normalizeDirectives(child) {
+}
+
+export function resolveAsset(options, type, id, warnMissing) {
+  if (typeof id !== 'string') {
+    return
+  }
+  const assets = options[type]
+
+  if (hasOwn(assets, id)) return assets[id]
+  // item-abc => itemAbc  转换驼峰
+  const camelizedId = camelize(id)
+  if (hasOwn(assets, camelizedId)) return assets[camelizedId]
+  // itemAbc => ItemAbc首字母大写
+  const PascalCaseId = capitalize(camelizedId)
+  if (hasOwn(assets, PascalCaseId)) return assets[PascalCaseId]
+  const res = assets[id] || assets[camelizedId] || assets[PascalCaseId]
+  return res
 }

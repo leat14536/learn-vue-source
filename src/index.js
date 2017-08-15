@@ -3,6 +3,7 @@
  */
 import Vue from './platforms/web/entry-runtime-with-compiler.js'
 
+debugger
 let todo = Vue.component('todo-item', {
   template: '<li>这是个待办项</li>'
 })

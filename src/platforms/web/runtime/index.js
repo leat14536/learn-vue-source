@@ -19,9 +19,9 @@ import {
 
 // 一些验证方法
 Vue.config.mustUseProp = () => console.log('mustUseProp')
-Vue.config.isReservedTag = () => isReservedTag
+Vue.config.isReservedTag = isReservedTag
 Vue.config.isReservedAttr = () => console.log('isReservedAttr')
-Vue.config.getTagNamespace = () => getTagNamespace
+Vue.config.getTagNamespace = getTagNamespace
 Vue.config.isUnknownElement = () => console.log('isUnknownElement')
 
 // model show指令

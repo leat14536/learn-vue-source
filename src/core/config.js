@@ -3,8 +3,12 @@
  */
 import {
   noop,
-  no
+  no,
+  identity
 } from 'shared/util'
+import {LIFECYCLE_HOOKS} from 'shared/constants'
+
+// identity: (_) => _
 export default ({
   optionMergeStrategies: Object.create(null),
   silent: false,
@@ -19,7 +23,7 @@ export default ({
   isReservedAttr: no,
   isUnknownElement: no,
   getTagNamespace: noop,
-  // parsePlatformTagName: identity,
-  mustUseProp: no
-  // _lifecycleHooks: LIFECYCLE_HOOKS
+  parsePlatformTagName: identity,
+  mustUseProp: no,
+  _lifecycleHooks: LIFECYCLE_HOOKS
 })

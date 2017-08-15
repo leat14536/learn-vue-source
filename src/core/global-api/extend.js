@@ -9,6 +9,7 @@ export function initExtend(Vue) {
   let cid = 1
 
   Vue.extend = function (extendOptions) {
+    // 组件选项
     extendOptions = extendOptions || {}
     const Super = this
     const SuperId = Super.cid
@@ -27,6 +28,7 @@ export function initExtend(Vue) {
     Sub.prototype = Object.create(Super.prototype)
     Sub.prototype.constructor = Sub
     Sub.cid = cid++
+    // 这里的options指的是静态 options
     Sub.options = mergeOptions(
       Super.options,
       extendOptions
