@@ -4,6 +4,7 @@
 import Vue from './platforms/web/entry-runtime-with-compiler.js'
 
 debugger
+
 let todo = Vue.component('todo-item', {
   template: '<li>这是个待办项</li>'
 })
@@ -11,19 +12,14 @@ let todo = Vue.component('todo-item', {
 let app = new Vue({
   el: '#app',
   data: {
-    a: 1,
-    b: [1, 2, 3],
-    c: {
-      a: 1
-    }
+    a: 1
   },
   components: {
     todo
   }
 })
 
-app.c.a = 5
-
+app.a = 5
 /*
  app.$watch('a', () => {
  alert(9)

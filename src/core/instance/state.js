@@ -85,6 +85,8 @@ export function initState(vm) {
   // initData
   if (opts.data) {
     initData(vm)
+  } else {
+    observe(vm._data = {}, true)
   }
 
   // initComputed initWatcher

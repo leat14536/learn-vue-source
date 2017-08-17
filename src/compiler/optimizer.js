@@ -2,7 +2,7 @@
  * Created by Administrator on 2017/8/9 0009.
  */
 
-import {makeMap, cached, no} from 'shared/util'
+import {makeMap, cached, no, isBuiltInTag} from 'shared/util'
 /* eslint-disable no-unused-vars */
 let isStaticKey
 let isPlatformReservedTag
@@ -80,13 +80,25 @@ function isStatic(node) {
   if (node.type === 3) { // text
     return true
   }
-  return !!(node.pre)
-  /* (
-   !node.hasBindings &&
-   !node.if && !node.for &&
-   !isBuiltInTag(node.tag) &&
-   isPlatformReservedTag(node.tag) &&
-   !isDirectChildOfTemplateFor(node) &&
-   Object.keys(node).every(isStaticKey)
-   )) */
+  return !!(node.pre || (
+    !node.hasBindings &&
+    !node.if && !node.for &&
+    !isBuiltInTag(node.tag) &&
+    isPlatformReservedTag(node.tag) &&
+    !isDirectChildOfTemplateFor(node) &&
+    Object.keys(node).every(isStaticKey)
+  ))
+}
+
+function isDirectChildOfTemplateFor(node) {
+  while (node.parent) {
+    node = node.parent
+    if (node.tag !== 'template') {
+      return false
+    }
+    if (node.for) {
+      return true
+    }
+  }
+  return false
 }

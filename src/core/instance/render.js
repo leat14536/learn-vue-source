@@ -75,6 +75,7 @@ export function renderMixin(Vue) {
 export function initRender(vm) {
   vm._vnode = null // the root of the child tree
   vm._staticTrees = null
+  // 当前组件经过__patch__第一次处理处理的VNode
   const parentVnode = vm.$vnode = vm.$options._parentVnode // the placeholder node in parent tree
   // const renderContext = parentVnode && parentVnode.context
 

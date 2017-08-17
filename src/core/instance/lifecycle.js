@@ -44,6 +44,10 @@ export function lifecycleMixin(Vue) {
     }
     // 如果父节点是临时的 更新父节点
     // ...
+    debugger
+    if (vm.$vnode && vm.$parent && vm.$vnode === vm.$parent._vnode) {
+      vm.$parent.$el = vm.$el
+    }
   }
 
   // 强制更新
@@ -60,9 +64,14 @@ export function lifecycleMixin(Vue) {
 export function initLifecycle(vm) {
   const options = vm.$options
 
-  // 找到第一个非父抽象类
+  // 找到第一个parent, 没有abstract的
+  // component分支时 会挂载在父vm实例的$children上
   let parent = options.parent
-  if (parent) {
+  if (parent && !options.abstract) {
+    while (parent.$options.abstract && parent.$parent) {
+      parent = parent.$parent
+    }
+    parent.$children.push(vm)
   }
 
   vm.$parent = parent

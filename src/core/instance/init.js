@@ -19,6 +19,8 @@ export function initMixin(Vue) {
 
     // 合并options
     if (options && options._isComponent) {
+      // component 分支
+      initInternalComponent(vm, options)
     } else {
       vm.$options = mergeOptions(resolveConstructorOptions(vm.constructor), options, vm)
     }
@@ -31,10 +33,14 @@ export function initMixin(Vue) {
     // $parent $root $children $refs
     // _watcher _inactive _directInactive
     // _isMounted _isDestroyed _isBeingDestroyed
+    // component分支:
+    // 当前vm会挂载在父vm的$children上
     initLifecycle(vm)
 
     // 挂载: _events _hasHookEvent $vnode $slots $scopedSlots $createElement
     // definepropoty: $attrs $listeners
+    // component分支:
+    // 处理父节点监听事件
     initEvents(vm)
 
     // 挂载 _vnode _staticTrees
@@ -79,4 +85,21 @@ export function resolveConstructorOptions(Ctor) {
     }
   }
   return options
+}
+
+// 将 vdom create-component 的 createComponentInstanceForVnode 中的属性挂载在ovuecomponent的ptions上
+function initInternalComponent(vm, options) {
+  const opts = vm.$options = Object.create(vm.constructor.options)
+  opts.parent = options.parent
+  opts.propsData = options.propsData
+  opts._parentVnode = options._parentVnode
+  opts._parentListeners = options._parentListeners
+  opts._renderChildren = options._renderChildren
+  opts._componentTag = options._componentTag
+  opts._parentElm = options._parentElm
+  opts._refElm = options._refElm
+  if (options.render) {
+    opts.render = options.render
+    opts.staticRenderFns = options.staticRenderFns
+  }
 }

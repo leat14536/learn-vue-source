@@ -45,7 +45,6 @@ function _createElement(context, tag, data, children, normalizationType) {
     let Ctor
     // @return tag === SVG || Math ?
     ns = config.getTagNamespace(tag)
-    debugger
     // true
     if (config.isReservedTag(tag)) {
       vnode = new VNode(tag, data, children, undefined, undefined, context)

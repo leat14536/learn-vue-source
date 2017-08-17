@@ -42,6 +42,7 @@ export function createPatchFunction(backend) {
 
     if (isDef(i = activeInstance) && i !== vnode.context && isDef(i = i.$options._scopeId)) {
       // ...
+      debugger
     }
   }
 
@@ -92,17 +93,23 @@ export function createPatchFunction(backend) {
     for (let i = 0; i < cbs.create.length; i++) {
       cbs.create[i](emptyNode, vnode)
     }
-    // 如果i是变量的话
+    // 如果data.hook存在
+    // 组件
     i = vnode.data.hook
     if (isDef(i)) {
-      // ...
+      // i.create ...
+      if (isDef(i.create)) i.create(emptyNode, vnode)
+      // i.insert ...
+      // 压入队列
+      if (isDef(i.insert)) insertedVnodeQueue.push(vnode)
     }
   }
 
   // vnode [] false
   function invokeInsertHook(vnode, queue, initial) {
     if (isTrue(initial) && isDef(vnode.parent)) {
-      // ...
+      // ... 组件内部会走这里
+      vnode.parent.data.pendingInsert = queue
     } else {
       for (let i = 0; i < queue.length; ++i) {
         queue[i].data.hook.insert(queue[i])
@@ -121,10 +128,46 @@ export function createPatchFunction(backend) {
     }
   }
 
-  function createComponent(vnode) {
+  function isPatchable(vnode) {
+    while (vnode.componentInstance) {
+      vnode = vnode.componentInstance._vnode
+    }
+    return isDef(vnode.tag)
+  }
+
+  function initComponent(vnode, insertedVnodeQueue) {
+    if (isDef(vnode.data.pendingInsert)) {
+      insertedVnodeQueue.push.apply(insertedVnodeQueue, vnode.data.pendingInsert)
+      vnode.data.pendingInsert = null
+    }
+    vnode.elm = vnode.componentInstance.$el
+    // 组件 true
+    if (isPatchable(vnode)) {
+      invokeCreateHooks(vnode, insertedVnodeQueue)
+      setScope(vnode)
+    } else {
+      // ...
+    }
+  }
+
+  function createComponent(vnode, insertedVnodeQueue, parentElm, refElm) {
     let i = vnode.data
     if (isDef(i)) {
       // ...
+      /* eslint-disable */
+      const isReactivated = isDef(vnode.componentInstance) && i.keepAlive
+      if (isDef(i = i.hook) && isDef(i = i.init)) {
+        // 执行组件的init
+        i(vnode, false /* hydrating */, parentElm, refElm)
+      }
+      if (isDef(vnode.componentInstance)) {
+        debugger
+        initComponent(vnode, insertedVnodeQueue)
+        if (isTrue(isReactivated)) {
+          reactivateComponent(vnode, insertedVnodeQueue, parentElm, refElm)
+        }
+        return true
+      }
     }
   }
 
@@ -226,6 +269,9 @@ export function createPatchFunction(backend) {
 
     if (isUndef(oldVnode)) {
       // oldNode 不存在
+      // 组件可能会走这个分支, 创建根元素
+      isInitialPatch = true
+      createElm(vnode, insertedVnodeQueue, parentElm, refElm)
     } else {
       // 暂时分析dom节点的情况
       // true
@@ -262,7 +308,7 @@ export function createPatchFunction(backend) {
         removeVnodes(parentElm, [oldVnode], 0, 0)
       }
     }
-    // 插入节点 暂时不知道干什么的
+    // 在这里会调用组件的mount() hook
     invokeInsertHook(vnode, insertedVnodeQueue, isInitialPatch)
     return vnode.elm
   }

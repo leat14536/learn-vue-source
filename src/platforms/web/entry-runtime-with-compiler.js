@@ -27,8 +27,12 @@ Vue.prototype.$mount = function (el, hydrating) {
   if (!options.render) {
     let template = options.template
     if (template) {
-      // template
-      // ...
+      // template 字符串模板
+      if (typeof template === 'string') {
+        if (template.charAt(0) === '#') {
+          // ...
+        }
+      }
     } else if (el) {
       template = getOuterHTML(el)
     }
