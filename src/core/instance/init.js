@@ -61,6 +61,7 @@ export function initMixin(Vue) {
     // 调用 created钩子
     callHook(vm, 'created')
 
+    debugger
     // 渲染
     if (vm.$options.el) {
       vm.$mount(vm.$options.el)

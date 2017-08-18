@@ -98,8 +98,7 @@ patch -> createElm (div) -> createChild -> crateElm(ol) -> createChild(todo-item
 
 VueComponent继承自Vue, 传入options会进入Vue._init的组件分支, 在合并options时调用initInternalComponent方法, 将组件的静态方法挂在```vm.$option.__proto__```上 将组件用options挂在$options上. initLifecycle(vm) 会把当前vm push进parent实例的$childeren中
 
-$mount -> patch时不传入oldVnode
-patch内部会将创建好的节点直接加入parentNode中
+因为没有传入el所以并不会调用$mount, 最后返回VueComponent实例, child再调用```child.$mount(hydrating ? vnode.elm : undefined, hydrating)```
+第一层$mount和Vue干的事情一样, 第二层$mount -> patch()时 因为组件没有挂载$el, 所以oldVnode不存在, createElm会直接将创建好的dom节点挂载在parentElm中patch快结束调用invokeInsertHook时将组件的insert钩子缓存起来
 
-未完...
-
+在经过一层一层回溯渲染完所有dom以后调用invokeInsertHook时会调用组件的insert内部钩子 -> call('component mounted')生命周期钩子
