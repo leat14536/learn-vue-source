@@ -2,11 +2,13 @@
  * Created by Administrator on 2017/8/6 0006.
  */
 import {createElement} from '../vdom/create-element'
+import {renderList} from './render-helpers/render-list'
 import {
   defineReactive,
   emptyObject,
   warn,
-  toString} from '../util/index'
+  toString
+} from '../util/index'
 import {isUpdatingChildComponent} from './lifecycle'
 import VNode, {
   createEmptyVNode,
@@ -23,8 +25,8 @@ export function renderMixin(Vue) {
   }
 
   /*
-  *   _render返回一个VNode节点
-  * */
+   *   _render返回一个VNode节点
+   * */
   Vue.prototype._render = function () {
     const vm = this
 
@@ -58,7 +60,7 @@ export function renderMixin(Vue) {
   Vue.prototype._o = log
   Vue.prototype._n = log
   Vue.prototype._s = toString
-  Vue.prototype._l = log
+  Vue.prototype._l = renderList
   Vue.prototype._t = log
   Vue.prototype._q = log
   Vue.prototype._i = log

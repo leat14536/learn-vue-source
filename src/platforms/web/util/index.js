@@ -13,6 +13,7 @@ export * from './element'
 *  isBooleanAttr
 *  isEnumeratedAttr
 *  isXlink
+*  mustUseProp
 * */
 export * from './attrs'
 

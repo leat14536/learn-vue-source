@@ -21,3 +21,14 @@ export const isEnumeratedAttr = makeMap('contenteditable,draggable,spellcheck')
 export const isFalsyAttrValue = (val) => {
   return val == null || val === false
 }
+
+const acceptValue = makeMap('input,textarea,option,select')
+export const mustUseProp = (tag, type, attr) => {
+  /* eslint-disable no-mixed-operators */
+  return (
+    (attr === 'value' && acceptValue(tag)) && type !== 'button' ||
+    (attr === 'selected' && tag === 'option') ||
+    (attr === 'checked' && tag === 'input') ||
+    (attr === 'muted' && tag === 'video')
+  )
+}

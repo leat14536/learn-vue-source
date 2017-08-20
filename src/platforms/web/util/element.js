@@ -43,3 +43,5 @@ export function getTagNamespace (tag) {
 export const isReservedTag = (tag) => {
   return isHTMLTag(tag) || isSVG(tag)
 }
+
+export const isPreTag = tag => tag === 'pre'

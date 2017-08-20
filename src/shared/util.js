@@ -101,3 +101,9 @@ export const capitalize = cached((str) => {
 })
 
 export const isBuiltInTag = makeMap('slot,component', true)
+
+export function genStaticKeys(modules) {
+  return modules.reduce((keys, m) => {
+    return keys.concat(m.staticKeys || [])
+  }, []).join(',')
+}

@@ -6,10 +6,11 @@
 </head>
 <body>
 <div id="app">
-  <span>{{a}}</span>
-  <ol>
-    <todo-item></todo-item>
-  </ol>
+  <ul id="repeat-object" class="demo">
+    <li v-for="(value, key) in object">
+      {{ key }} : {{ value }}
+    </li>
+  </ul>
 </div>
 </body>
 </html>

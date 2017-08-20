@@ -17,6 +17,48 @@ export function generate(ast, options) {
   }
 }
 
+function genOnce() {
+  console.log('genOnce')
+}
+
+export function genIf(el, state, altGen, altEmpty) {
+  el.ifProcessed = true
+  return genIfConditions(el.ifConditions.slice(), state, altGen, altEmpty)
+}
+
+function genIfConditions(conditions, state, altGen, altEmpty) {
+  if (!conditions.length) {
+    return altEmpty || '_e()'
+  }
+
+  const condition = conditions.shift()
+  if (condition.exp) {
+    return `(${condition.exp})?${genTernaryExp(condition.block)}
+    :${genIfConditions(conditions, state, altGen)}`
+  } else {
+    return `${genTernaryExp(condition.block)}`
+  }
+
+  function genTernaryExp(el) {
+    return altGen ? altGen(el, state)
+      : el.once ? genOnce(el, state)
+        : genElement(el, state)
+  }
+}
+
+export function genFor(el, state, altGen, altHelper) {
+  const exp = el.for
+  const alias = el.alias
+  const iterator1 = el.iterator1 ? `,${el.iterator1}` : ''
+  const iterator2 = el.iterator2 ? `,${el.iterator2}` : ''
+
+  el.forProcessed = true
+  return `${altHelper || '_l'}((${exp}),` +
+    `function(${alias}${iterator1}${iterator2}){` +
+    `return ${(altGen || genElement)(el, state)}` +
+    '})'
+}
+
 export class CodegenState {
   constructor(options) {
     this.options = options
@@ -41,9 +83,9 @@ export function genElement(el, state) {
   } else if (el.once && !el.onceProcessed) {
     // ...
   } else if (el.for && !el.forProcessed) {
-    // ...
+    return genFor(el, state)
   } else if (el.if && !el.ifProcessed) {
-    // ...
+    return genIf(el, state)
   } else if (el.tag === 'template' && !el.slotTarget) {
     // ...
   } else if (el.tag === 'slot') {
@@ -67,8 +109,18 @@ export function genElement(el, state) {
   }
 }
 
+function genDirectives(el, state) {
+  const dirs = el.directives
+  if (!dirs) {
+  }
+}
+
 function genData(el, state) {
   let data = '{'
+  debugger
+  const dirs = genDirectives(el, state)
+
+  if (dirs) data += dirs + ','
 
   // ... dir
   // ... key
@@ -76,7 +128,11 @@ function genData(el, state) {
   // ... refInFor
   // ... pre
   // ... component
-  // ... data generation functions 数据生成功能
+
+  // 静态class
+  for (let i = 0; i < state.dataGenFns.length; i++) {
+    data += state.dataGenFns[i](el)
+  }
 
   // attr
   if (el.attrs) {
@@ -103,6 +159,8 @@ function genChildren(el, state, checkSkip, altGenElement, altGenNode) {
     // v-for
     if (children.length === 1 && el.for && el.tag !== 'template' && el.tag !== 'slot') {
       // ...
+      debugger
+      return (altGenElement || genElement)(el, state)
     }
 
     // 0

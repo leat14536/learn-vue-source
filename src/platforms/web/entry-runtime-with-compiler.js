@@ -5,10 +5,10 @@
 import Vue from './runtime/index'
 import {warn} from 'core/util/index'
 import {query} from './util/index'
-import { compileToFunctions } from './compiler/index'
+import {compileToFunctions} from './compiler/index'
 
 // 检测浏览器是否自动转码('\n' -> &#10;) type: Boolean chrome下为false
-import { shouldDecodeNewlines } from './util/compat'
+import {shouldDecodeNewlines} from './util/compat'
 
 // 缓存 mount
 const mount = Vue.prototype.$mount
