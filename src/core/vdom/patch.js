@@ -14,6 +14,28 @@ import {activeInstance} from '../instance/lifecycle'
 export const emptyNode = new VNode('', {}, [])
 const hooks = ['create', 'activate', 'update', 'remove', 'destroy']
 
+function sameVnode(a, b) {
+  // 比较了 key, tag, isComponent, data是否同时存在或同时不存在, 不是input
+  return (
+    a.key === b.key && (
+      (
+        a.tag === b.tag &&
+        a.isComponent === b.component &&
+        isDef(a.data) === isDef(b.data) &&
+        sameInputType(a, b)
+      ) || (
+        isTrue(a.isAsyncPlaceholder) &&
+        a.asyncFactory === b.asyncFactory &&
+        isUndef(b.asyncFactory.error)
+      )
+    )
+  )
+}
+
+function sameInputType(a, b) {
+  if (a.tag !== 'input') return true
+}
+
 export function createPatchFunction(backend) {
   // 函数内部使用的全局变量
   let i, j
@@ -256,9 +278,93 @@ export function createPatchFunction(backend) {
     }
   }
 
-  // initial
-  // 初始dom vnode false false undefined undefined
+  function updateChildren(parentElm, oldCh, newCh, insertedVnodeQueue, removeOnly) {
+    let oldStartIdx = 0
+    let newStartIdx = 0
+    let oldEndIdx = oldCh.length - 1
+    let oldStartVnode = oldCh[0]
+    let oldEndVnode = oldCh[oldEndIdx]
+    let newEndIdx = newCh.length - 1
+    let newStartVnode = newCh[0]
+    let newEndVnode = newCh[newEndIdx]
+    let oldKeyToIdx, idxInOld, elmToMove, refElm
+
+    const canMove = !removeOnly
+
+    while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
+      if (isUndef(oldStartVnode)) {
+        console.log('-----------------------')
+      } else if (isUndef(oldEndVnode)) {
+        console.log('-----------------------')
+      } else if (sameVnode(oldStartVnode, newStartVnode)) {
+        patchVnode(oldStartVnode, newStartVnode, insertedVnodeQueue)
+        oldStartVnode = oldCh[++oldStartIdx]
+        newStartVnode = newCh[++newStartIdx]
+      }
+    }
+  }
+
+  function patchVnode(oldVnode, vnode, insertedVnodeQueue, removeOnly) {
+    if (oldVnode === vnode) {
+      return
+    }
+
+    const elm = vnode.elm = oldVnode.elm
+
+    if (isTrue(oldVnode.isAsyncPlaceholder)) {
+      if (isDef(vnode.asyncFactory.resolved)) {
+        debugger
+      } else {
+        vnode.isAsyncPlaceholder = true
+      }
+      return
+    }
+
+    // 处理静态节点
+    if (isTrue(vnode.isStatic) &&
+      isTrue(oldVnode.isStatic) &&
+      vnode.key === oldVnode.key &&
+      (isTrue(vnode.isCloned) || isTrue(vnode.isOnce))
+    ) {
+      vnode.componentInstance = oldVnode.componentInstance
+      return
+    }
+
+    let i
+    const data = vnode.data
+    if (isDef(data) && isDef(i = data.hook) && isDef(i = i.prepatch)) {
+      // 暂时不知道干什么的
+      debugger
+    }
+
+    const oldCh = oldVnode.children
+    const ch = vnode.children
+    if (isDef(data) && isPatchable(vnode)) {
+      for (i = 0; i < cbs.update.length; ++i) cbs.update[i](oldVnode, vnode)
+      if (isDef(i = data.hook) && isDef(i = i.update)) i(oldVnode, vnode)
+    }
+    if (isUndef(vnode.text)) {
+      if (isDef(oldCh) && isDef(ch)) {
+        if (oldCh !== ch) updateChildren(elm, oldCh, ch, insertedVnodeQueue, removeOnly)
+      } else if (isDef(ch)) {
+        debugger
+      } else if (isDef(oldCh)) {
+        debugger
+      } else if (isDef(oldVnode.text)) {
+        debugger
+      }
+    } else if (oldVnode.text !== vnode.text) {
+      nodeOps.setTextContent(elm, vnode.text)
+    }
+    if (isDef(data)) {
+      if(isDef(i = data.hook) && isDef(i = i.potpatch)) i(oldVnode, vnode)
+    }
+  }
+
+// initial
+// 初始dom vnode false false undefined undefined
   return function patch(oldVnode, vnode, hydrating, removeOnly, parentElm, refElm) {
+    debugger
     if (isUndef(vnode)) {
       // ...
       console.warn('[VNode] is UnDef')
@@ -273,39 +379,43 @@ export function createPatchFunction(backend) {
       isInitialPatch = true
       createElm(vnode, insertedVnodeQueue, parentElm, refElm)
     } else {
-      // 暂时分析dom节点的情况
-      // true
       const isRealElement = isDef(oldVnode.nodeType)
-      if (isRealElement) {
-        if (oldVnode.nodeType === 1 && oldVnode.hasAttribute(SSR_ATTR)) {
-          // 服务端渲染相关
+
+      // 看vnode是否值得比较
+      if (!isRealElement && sameVnode(oldVnode, vnode)) {
+        patchVnode(oldVnode, vnode, insertedVnodeQueue, removeOnly)
+      } else {
+        if (isRealElement) {
+          if (oldVnode.nodeType === 1 && oldVnode.hasAttribute(SSR_ATTR)) {
+            // 服务端渲染相关
+            // ...
+          }
+
+          if (isTrue(hydrating)) {
+            // ...
+          }
+
+          // initial return -> VNode tag: div, elm: div#app
+          oldVnode = emptyNodeAt(oldVnode)
+        }
+
+        const oldElm = oldVnode.elm
+        // ubdefined
+        const parentElm = nodeOps.parentNode(oldElm)
+        // 创建并添加新节点
+        createElm(vnode,
+          insertedVnodeQueue,
+          oldElm._leaveCb ? null : parentElm,
+          nodeOps.nextSibling(oldElm))
+
+        if (isDef(vnode.parent)) {
           // ...
         }
 
-        if (isTrue(hydrating)) {
-          // ...
+        // 移除原始节点
+        if (isDef(parentElm)) {
+          removeVnodes(parentElm, [oldVnode], 0, 0)
         }
-
-        // initial return -> VNode tag: div, elm: div#app
-        oldVnode = emptyNodeAt(oldVnode)
-      }
-
-      const oldElm = oldVnode.elm
-      // ubdefined
-      const parentElm = nodeOps.parentNode(oldElm)
-      // 创建并添加新节点
-      createElm(vnode,
-        insertedVnodeQueue,
-        oldElm._leaveCb ? null : parentElm,
-        nodeOps.nextSibling(oldElm))
-
-      if (isDef(vnode.parent)) {
-        // ...
-      }
-
-      // 移除原始节点
-      if (isDef(parentElm)) {
-        removeVnodes(parentElm, [oldVnode], 0, 0)
       }
     }
     // 在这里会调用组件的mount() hook

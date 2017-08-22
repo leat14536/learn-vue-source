@@ -15,4 +15,5 @@ let app = new Vue({
   }
 })
 
+app.object.age = 31
 console.log(app)

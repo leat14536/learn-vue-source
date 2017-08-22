@@ -46,8 +46,8 @@ export function tagName(node) {
   return node.tagName
 }
 
-export function setTextContent() {
-  console.log('setTextContent')
+export function setTextContent(node, text) {
+  node.textContent = text
 }
 
 export function setAttribute() {

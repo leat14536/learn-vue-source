@@ -123,7 +123,11 @@ function genData(el, state) {
   if (dirs) data += dirs + ','
 
   // ... dir
-  // ... key
+
+  if (el.key) {
+    data += `key:${el.key}`
+  }
+
   // ... ref
   // ... refInFor
   // ... pre
@@ -204,13 +208,22 @@ function getNormalizationType(children, maybeComponent) {
     if (el.type !== 1) {
       continue
     }
-    // ...
+    // ... 处理v-for 和 v-if混合
+    if (needsNormalization(el) ||
+      (el.ifCondition && el.ifConditions.some(c => maybeComponent(c.block)))) {
+      res = 2
+      break
+    }
     if (maybeComponent(el) ||
       (el.ifConditions && el.ifConditions.some(c => maybeComponent(c.block)))) {
       res = 1
     }
   }
   return res
+}
+
+function needsNormalization(el) {
+  return el.for !== undefined || el.tag === 'template' || el.tag === 'slot'
 }
 
 // 替换2028 / 2029

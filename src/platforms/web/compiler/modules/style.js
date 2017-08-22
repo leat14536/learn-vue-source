@@ -9,5 +9,6 @@ export default {
   },
   genData() {
     console.log('staticStyle genData')
+    return ''
   }
 }
