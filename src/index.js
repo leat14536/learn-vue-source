@@ -7,13 +7,14 @@ debugger
 let app = new Vue({
   el: '#app',
   data: {
-    object: {
-      firstName: 'John',
-      lastName: 'Doe',
-      age: 30
-    }
+    level: 1
+  },
+  render (createElement) {
+    return createElement(
+      'h' + this.level,
+      {attrs: {id: 1, class: 2}}
+    )
   }
 })
 
-app.object.age = 31
 console.log(app)
