@@ -8,12 +8,6 @@ let app = new Vue({
   el: '#app',
   data: {
     level: 1
-  },
-  render (createElement) {
-    return createElement(
-      'h' + this.level,
-      {attrs: {id: 1, class: 2}}
-    )
   }
 })
 
