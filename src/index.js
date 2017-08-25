@@ -1,14 +1,12 @@
 /**
- * Created by Administrator on 2017/8/6 0006.
+ * Created by Administrator on 2017/8/24 0024.
  */
-import Vue from './platforms/web/entry-runtime-with-compiler.js'
+import Vue from 'vue'
+import store from './store/index'
 
 debugger
 let app = new Vue({
-  el: '#app',
-  data: {
-    level: 1
-  }
+  store
 })
 
 console.log(app)

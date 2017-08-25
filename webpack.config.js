@@ -16,6 +16,7 @@ module.exports = () => {
     resolve: {
       extensions: ['\.js'],
       alias: {
+        vuex1: resolve('./src/vuex'),
         core: resolve('./src/core'),
         shared: resolve('./src/shared'),
         web: resolve('./src/platforms/web'),
