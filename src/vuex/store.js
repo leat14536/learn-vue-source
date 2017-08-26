@@ -5,7 +5,7 @@
 import applyMixin from './mixin'
 import ModuleCollection from './module/module-collection'
 import devtoolPlugin from './plugins/devtool'
-import {isPromise, forEachValue} from './util'
+import {isPromise, forEachValue, isObject} from './util'
 
 let Vue
 
@@ -41,21 +41,82 @@ export class Store {
 
     this.strict = strict
 
-    // 传进去了 this 当前state [] 当前options
+    // 将mutation, getter, action 的方法绑定this并存储在
+    // this._mutations this._actions this._wrappedGetters 中
     installModule(this, state, [], this._modules.root)
 
+    // 使用vm存储全局状态树, 并观察变化
     resetStoreVM(this, state)
 
     plugins.forEach(plugin => plugin(this))
   }
 
-  dispatch(_type, _payload, _options) {
+  get state() {
+    return this._vm._data.$$state
+  }
+
+  set state(v) {
+    console.error('不可以直接修改 state')
+  }
+
+  _withCommit(fn) {
+    const committing = this._committing
+    this._committing = true
+    fn()
+    this._committing = committing
+  }
+
+  dispatch(_type, _payload) {
     console.log('==============')
   }
 
-  commit(_type, _payload) {
-    console.log('===============')
+  commit(_type, _payload, _options) {
+    // commit有多种传参方式, 转换出同样的参数
+    // key, value, 未知
+    const {type, payload, options} = unifyObjectStyle(_type, _payload, _options)
+
+    const mutation = {type, payload}
+    const entry = this._mutations[type]
+    if (!entry) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error(`[vuex] unknown mutation type: ${type}`)
+      }
+      return
+    }
+
+    // 更新状态的方法
+    this._withCommit(() => {
+      entry.forEach(function commitIterator(handler) {
+        handler(payload)
+      })
+    })
+
+    // 暂时未知
+    this._subscribers.forEach(sub => sub(mutation, this.state))
+
+    if (
+      process.env.NODE_ENV !== 'production' &&
+      options && options.silent
+    ) {
+      console.warn(
+        `[vuex] mutation type: ${type}. Silent option has been removed. ` +
+        'Use the filter functionality in the vue-devtools'
+      )
+    }
   }
+}
+
+function unifyObjectStyle(type, payload, options) {
+  if (isObject(type) && type.type) {
+    options = payload
+    payload = type
+    type = type.type
+  }
+  if (process.env.NODE_ENV !== 'production') {
+    !(typeof type === 'string') && console.error(`Expects string as the type, but found ${typeof type}.`)
+  }
+
+  return {type, payload, options}
 }
 
 function resetStoreVM(store, state, hot) {
@@ -104,7 +165,7 @@ function resetStoreVM(store, state, hot) {
 
 function enableStrictMode(store) {
   store._vm.$watch(function () {
-    return this._data.$$store
+    return this._data.$$state
   }, () => {
     !store._committing && console.error('Do not mutate vuex store state outside mutation handlers.')
   }, {deep: true, sync: true})
@@ -118,10 +179,10 @@ function installModule(store, rootState, path, module, hot) {
 
   if (!isRoot && !hot) console.log('-----------')
 
-  // 返回dispatch 和 commit 方法
+  // 获取当前节点的更新方法及状态
+  // 返回 {方法: dispatch, commit, 只读: getters, state}
   const local = module.context = makeLocalContext(store, namespace, path)
 
-  debugger
   module.forEachMutation((mutation, key) => {
     const namespacedType = namespace + key
     registerMutation(store, namespacedType, mutation, local)
