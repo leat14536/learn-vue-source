@@ -67,7 +67,18 @@ export class Store {
   }
 
   dispatch(_type, _payload) {
-    console.log('==============')
+    const {type, payload} = unifyObjectStyle(_type, _payload)
+
+    const entry = this._actions[type]
+    if (!entry) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.error(`[vuex] unknown action type: ${type}`)
+      }
+      return
+    }
+    return entry.length > 1
+      ? Promise.all(entry.map(handler => handler(payload)))
+      : entry[0](payload)
   }
 
   commit(_type, _payload, _options) {

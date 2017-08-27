@@ -1,7 +1,23 @@
 /**
  * Created by Administrator on 2017/8/24 0024.
  */
-export const mapState = 0
+export const mapState = normalizeNamespace((namespace, state) => {
+  const res = {}
+  normalizeMap(state).forEach(({key, val}) => {
+    res[key] = function mapState() {
+      let state = this.$store.state
+      let getters = this.$store.getters
+      if (namespace) {
+        console.log('==================')
+      }
+      return typeof val === 'function'
+        ? val.call(this, state, getters)
+        : state[val]
+    }
+    res[key].vuex = true
+  })
+  return res
+})
 
 /* 返回mutations */
 export const mapMutations = normalizeNamespace((namespace, state) => {
@@ -48,9 +64,15 @@ export const mapActions = normalizeNamespace((namespace, actions) => {
       return this.$store.dispatch.apply(this.$store, [val].concat(args))
     }
   })
+  return res
 })
 
-export const createNamespacedHelpers = 0
+export const createNamespacedHelpers = (namespace) => ({
+  mapState: mapState.bind(null, namespace),
+  mapGetters: mapGetters.bind(null, namespace),
+  mapMutations: mapMutations.bind(null, namespace),
+  mapActions: mapActions.bind(null, namespace)
+})
 
 function normalizeNamespace(fn) {
   return (namespace, map) => {
